@@ -13,24 +13,50 @@ console.log("Hello World!");
 // const datasync = fs.readFileSync("input.txt", "utf8");
 // console.log(datasync);
 // Server response
-
+const replaceTemplate = (temp, product) => {
+  let output = temp.replace(/{%PRODUCTNAME%}/g, product.productName);
+  output = output.replace(/{%IMAGE%}/g, product.image);
+  output = output.replace(/{%PRICE%}/g, product.price);
+  output = output.replace(/{%FROM%}/g, product.from);
+  output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
+  output = output.replace(/{%QUANTITY%}/g, product.quantity);
+  output = output.replace(/{%DESCRIPTION%}/g, product.description);
+  output = output.replace(/{%ID%}/g, product.id);
+  if (!product.organic)
+    output = output.replace(/{%NOT_ORGANIC%}/g, "not-organic");
+  return output;
+};
+const temOverView = fs.readFileSync(
+  "./templates/template-overview.html",
+  "utf8"
+);
+const temProduct = fs.readFileSync("./templates/template-product.html", "utf8");
+const temCard = fs.readFileSync("./templates/template-card.html", "utf8");
+// fs.readFile("./data/data.json", "utf8", (err, data) => {
+//   const obj = JSON.parse(data);
+//   res.end(JSON.stringify(obj));
+// })
 const apiData = fs.readFileSync("./data/data.json", "utf8");
 const apiDataJson = JSON.parse(apiData);
 
 const server = http.createServer((req, res) => {
-  console.log(req.url);
-  const pathName = req.url;
-  if (pathName === "/" || pathName === "/overview") {
-    res.end("This is the OVERVIEW");
-  } else if (pathName === "/api") {
+  // console.log(url.parse(req.url, true), "URL");
+  const { query,  pathname } = url.parse(req.url, true);
+  if ( pathname === "/" ||  pathname === "/overview") {
+    res.writeHead(404, { "Content-Type": "text/html" });
+    const cardsHtml = apiDataJson
+      .map((elm) => replaceTemplate(temCard, elm))
+      .join("");
+    const output = temOverView.replace("{%PRODUCT_CARDS%}", cardsHtml);
+    res.end(output);
+  } else if ( pathname === "/api") {
     res.writeHead(200, { "Content-type": "application/json" });
     res.end(apiDataJson);
-    // fs.readFile("./data/data.json", "utf8", (err, data) => {
-    //   const obj = JSON.parse(data);
-    //   res.end(JSON.stringify(obj));
-    // })
-  } else if (pathName === "/product") {
-    res.end("This is the PRODUCT");
+  } else if ( pathname === "/product") {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    const product = apiDataJson[query.id];
+    const output = replaceTemplate(temProduct, product);
+    res.end(output);
   } else {
     res.writeHead(404, { "Content-Type": "text/html" });
     res.end("<h1>Page not found</h1>");
