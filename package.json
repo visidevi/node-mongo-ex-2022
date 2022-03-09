@@ -1,0 +1,19 @@
+{
+  "name": "node2020",
+  "version": "1.0.0",
+  "description": "Bootcamp Node",
+  "main": "index.js",
+  "repository": "git@github.com:visidevi/node-mongo-ex-2022.git",
+  "author": "visidevi <visidevi1@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "slugify": "^1.6.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
