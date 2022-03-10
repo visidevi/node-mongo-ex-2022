@@ -5,22 +5,11 @@ const port = 3000;
 
 app.use(express.json());
 // Routing
-// app.get('/', (req, res) => {
-//   res.status(200).json({
-//     app: 'Natours',
-//     msg: 'Hello World!',
-//   });
-// });
 
-// app.post('/', (req, res) => {
-//   console.log('req', req);
-//   res.send('Method post is available');
-// });
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
-//  Route Handler
-app.get('/api/v1/tours', (req, res) => {
+const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
     data: {
@@ -28,8 +17,8 @@ app.get('/api/v1/tours', (req, res) => {
     },
     results: tours.length,
   });
-});
-app.post('/api/v1/tours', (req, res) => {
+};
+const createTour = (req, res) => {
   const id = tours[tours.length - 1].id + 1;
   const newTour = Object.assign({ id }, req.body);
   tours.push(newTour);
@@ -51,9 +40,8 @@ app.post('/api/v1/tours', (req, res) => {
         });
     }
   );
-});
-
-app.post('/api/v1/tours/:id', (req, res) => {
+};
+const getOneTour = (req, res) => {
   const tour = tours.find((el) => el.id === req.params.id * 1);
   if (!tour) {
     res.status(404).json({ status: 'fail', message: 'Tour not found' });
@@ -64,9 +52,8 @@ app.post('/api/v1/tours/:id', (req, res) => {
       tour,
     },
   });
-});
-
-app.delete('/api/v1/tours/:id', (req, res) => {
+};
+const deleteTour = (req, res) => {
   const tour = tours.find((el) => el.id === req.params.id * 1);
   if (!tour) {
     res.status(404).json({ status: 'fail', message: 'Tour not found' });
@@ -75,10 +62,9 @@ app.delete('/api/v1/tours/:id', (req, res) => {
   res.status(204).json({
     status: 'success',
     data: null,
-  })
-})
-
-app.patch('/api/v1/tours/:id', (req, res) => {
+  });
+};
+const patchTour = (req, res) => {
   const tour = tours.find((el) => el.id === req.params.id * 1);
   if (!tour) {
     res.status(404).json({ status: 'fail', message: 'Tour not found' });
@@ -90,8 +76,16 @@ app.patch('/api/v1/tours/:id', (req, res) => {
       tour: updatedTour,
     },
   });
+};
+//  Route Handler
+// app.get('/api/v1/tours', getAllTours);
+// app.post('/api/v1/tours', createTour);
+// app.get('/api/v1/tours/:id', getOneTour);
+// app.patch('/api/v1/tours/:id', patchTour);
+// app.delete('/api/v1/tours/:id', deleteTour);
 
-})
+app.route('/api/v1/tours').get(getAllTours).post(createTour);
+app.route('/api/v1/tours/:id').get(getOneTour).patch(patchTour).delete(deleteTour);
 // Start server
 app.listen(port, () => {
   console.log('Server started on port 3000');
