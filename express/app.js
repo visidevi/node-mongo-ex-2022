@@ -9,15 +9,27 @@ app.use(express.json());
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
+// Middleware
+app.use((req, res, next) => {
+  console.log('Hello from the middleware');
+  next();
+});
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next();
+  console.log(req.requestTime);
+});
 const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
+    time: req.requestTime,
     data: {
       tours,
     },
     results: tours.length,
   });
 };
+
 const createTour = (req, res) => {
   const id = tours[tours.length - 1].id + 1;
   const newTour = Object.assign({ id }, req.body);
@@ -85,7 +97,11 @@ const patchTour = (req, res) => {
 // app.delete('/api/v1/tours/:id', deleteTour);
 
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
-app.route('/api/v1/tours/:id').get(getOneTour).patch(patchTour).delete(deleteTour);
+app
+  .route('/api/v1/tours/:id')
+  .get(getOneTour)
+  .patch(patchTour)
+  .delete(deleteTour);
 // Start server
 app.listen(port, () => {
   console.log('Server started on port 3000');
