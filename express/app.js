@@ -1,5 +1,6 @@
 const express = require('express');
 const fs = require('fs');
+const morgan = require('morgan');
 const app = express();
 const port = 3000;
 
@@ -10,6 +11,7 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 // Middleware
+app.use(morgan('dev'));
 app.use((req, res, next) => {
   console.log('Hello from the middleware');
   next();
