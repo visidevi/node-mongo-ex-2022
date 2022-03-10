@@ -1,0 +1,13 @@
+{
+  "name": "natours",
+  "version": "1.0.0",
+  "description": "Learning node express and mongo",
+  "main": "app.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "dependencies": {
+    "express": "^4.17.3"
+  }
+}
