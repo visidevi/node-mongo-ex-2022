@@ -91,6 +91,20 @@ const patchTour = (req, res) => {
     },
   });
 };
+const getAllUsers = (req, res) => {
+  console.log('Hello from the users');
+  res.status(500).json({ msg: 'This route is not available' });
+};
+const getOneUser = (req, res) => {
+  res.status(500).json({ msg: 'This route is not available' });
+};
+const createUser = (req, res) => {
+  res.status(500).json({ msg: 'This route is not available' });
+};
+const deleteUser = (req, res) => {
+  res.status(500).json({ msg: 'This route is not available' });
+};
+
 //  Route Handler
 // app.get('/api/v1/tours', getAllTours);
 // app.post('/api/v1/tours', createTour);
@@ -98,12 +112,16 @@ const patchTour = (req, res) => {
 // app.patch('/api/v1/tours/:id', patchTour);
 // app.delete('/api/v1/tours/:id', deleteTour);
 
-app.route('/api/v1/tours').get(getAllTours).post(createTour);
-app
-  .route('/api/v1/tours/:id')
-  .get(getOneTour)
-  .patch(patchTour)
-  .delete(deleteTour);
+const tourRouter = express.Router();
+tourRouter.route('/').get(getAllTours).post(createTour);
+tourRouter.route('/:id').get(getOneTour).patch(patchTour).delete(deleteTour);
+app.use('/api/v1/tours', tourRouter);
+
+const userRouter = express.Router();
+app.use('/api/v1/users', userRouter);
+userRouter.route('/').get(getAllUsers).post(createUser);
+userRouter.route('/:id').get(getOneUser).delete(deleteUser);
+
 // Start server
 app.listen(port, () => {
   console.log('Server started on port 3000');
