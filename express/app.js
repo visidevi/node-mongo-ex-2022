@@ -1,5 +1,7 @@
+/* eslint-disable import/no-dynamic-require */
 const express = require('express');
 const morgan = require('morgan');
+
 const app = express();
 
 // Routing

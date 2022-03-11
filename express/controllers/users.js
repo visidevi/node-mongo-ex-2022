@@ -1,5 +1,3 @@
-const express = require('express');
-
 exports.getAllUsers = (req, res) => {
   console.log('Hello from the users');
   res.status(500).json({ msg: 'This route is not available' });
