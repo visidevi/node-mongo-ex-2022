@@ -15,3 +15,7 @@ a pice of software that can be used by another pice of software in order to allo
 > PUT: The client supposed the send the entire updated object.
 > PATH: Partial update object
 > POST: Create new resource
+
+```
+yarn add eslint prettier eslint-config-prettier eslint-plugin-prettier eslint-config-airbnb eslint-plugin-node eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react -D
+```

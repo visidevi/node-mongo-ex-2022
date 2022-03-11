@@ -7,10 +7,10 @@ const usersRouter = require(`${__dirname}/routes/users`);
 const toursRouter = require(`${__dirname}/routes/tours`);
 
 // Middleware
+if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 app.use(express.json());
+app.use(express.static(`${__dirname}/public`));
 
-// Middleware
-app.use(morgan('dev'));
 app.use((req, res, next) => {
   console.log('Hello from the middleware');
   next();
