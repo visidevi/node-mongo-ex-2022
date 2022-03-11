@@ -8,7 +8,19 @@ const tours = JSON.parse(
 exports.checkID = (req, res, next, val) => {
   const tour = tours.find((el) => el.id === val * 1);
   if (!tour) {
-    return res.status(404).json({ status: 'fail', message: 'Tour not found' });
+    return res
+      .status(404)
+      .json({ status: 'fail', message: 'Tour not found, Ivalid Id ' + val });
+  }
+  next();
+};
+exports.checkBody = (req, res, next) => {
+  if (!req.body.name || !req.body.price || !req.body.duration) {
+    console.log('Body: ', req.body);
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Missing parameters',
+    });
   }
   next();
 };
@@ -28,7 +40,7 @@ exports.createTour = (req, res) => {
   const newTour = Object.assign({ id }, req.body);
   tours.push(newTour);
   fs.writeFile(
-    `${__dirname}/dev-data/datas/tours-simple.json`,
+    `${__dirname}/../dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
     (err) => {
       if (err) {
@@ -62,6 +74,7 @@ exports.deleteTour = (req, res) => {
   });
 };
 exports.patchTour = (req, res) => {
+  const tour = tours.find((el) => el.id === req.params.id * 1);
   const updatedTour = Object.assign(tour, req.body);
   res.status(200).json({
     status: 'success',
