@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -76,30 +77,33 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+  },
+  {
+    // this will create a virtual field called 'durationWeeks'
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
-  // {
-  //   toJSON: { virtuals: true },
-  //   toObject: { virtuals: true },
-  // }
 );
+// we cant not use durationWeeks in querys becouse the virtual field is not exist
+tourSchema.virtual('durationWeeks').get(function () {
+  return this.duration / 7;
+});
 
-// tourSchema.virtual('durationWeeks').get(function () {
-//   return this.duration / 7;
-// });
-
-// // DOCUMENT MIDDLEWARE: runs before .save() and .create()
+// DOCUMENT MIDDLEWARE: runs before .save() and .create()
 // tourSchema.pre('save', function (next) {
+//   // this only points to current doc on NEW document creation
 //   this.slug = slugify(this.name, { lower: true });
+//   console.log('Will save document...', this);
 //   next();
 // });
 
-// tourSchema.pre('save', function(next) {
-//   console.log('Will save document...');
-//   next();
-// });
+// // tourSchema.pre('save', function(next) {
+// //   console.log('Will save document...');
+// //   next();
+// // });
 
-// tourSchema.post('save', function(doc, next) {
-//   console.log(doc);
+// tourSchema.post('save', (doc, next) => {
+//   console.log('DOCUMENT SAVED:', doc);
 //   next();
 // });
 
