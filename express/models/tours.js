@@ -90,12 +90,12 @@ tourSchema.virtual('durationWeeks').get(function () {
 });
 
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()
-// tourSchema.pre('save', function (next) {
-//   // this only points to current doc on NEW document creation
-//   this.slug = slugify(this.name, { lower: true });
-//   console.log('Will save document...', this);
-//   next();
-// });
+tourSchema.pre('save', function (next) {
+  // this only points to current doc on NEW document creation
+  this.slug = slugify(this.name, { lower: true });
+  console.log('Will save document...', this);
+  next();
+});
 
 // // tourSchema.pre('save', function(next) {
 // //   console.log('Will save document...');
@@ -107,26 +107,27 @@ tourSchema.virtual('durationWeeks').get(function () {
 //   next();
 // });
 
-// // QUERY MIDDLEWARE
-// // tourSchema.pre('find', function(next) {
-// tourSchema.pre(/^find/, function (next) {
-//   this.find({ secretTour: { $ne: true } });
+// QUERY MIDDLEWARE
+// tourSchema.pre('find', function(next) {
+tourSchema.pre(/^find/, function (next) {
+  this.find({ secretTour: { $ne: true } });
 
-//   this.start = Date.now();
-//   next();
-// });
+  this.start = Date.now();
+  next();
+});
 
-// tourSchema.post(/^find/, function (docs, next) {
-//   console.log(`Query took ${Date.now() - this.start} milliseconds!`);
-//   next();
-// });
+tourSchema.post(/^find/, function (docs, next) {
+  console.log(`Query took ${Date.now() - this.start} milliseconds!`);
+  next();
+});
 
-// // AGGREGATION MIDDLEWARE
-// tourSchema.pre('aggregate', function (next) {
-//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+// AGGREGATION MIDDLEWARE
+tourSchema.pre('aggregate', function (next) {
+  // unshift() adds to the beginning of the array
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
 
-//   console.log(this.pipeline());
-//   next();
-// });
+  console.log(this.pipeline(), 'pipeline---------------------');
+  next();
+});
 
 module.exports = mongoose.model('Tour', tourSchema);
