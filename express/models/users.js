@@ -13,10 +13,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please enter your email'],
       unique: true,
-      match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        'Please enter a valid email',
-      ],
+      // match: [
+      //   /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      //   'Please enter a valid email',
+      // ],
       validate: [validator.isEmail, 'Please enter a valid email'],
     },
     photo: {
