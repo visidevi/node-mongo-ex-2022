@@ -1,21 +1,35 @@
 /* eslint-disable import/no-dynamic-require */
 const express = require('express');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/error');
 
 const app = express();
 
-// Routing
-const usersRouter = require(`${__dirname}/routes/users`);
-const toursRouter = require(`${__dirname}/routes/tours`);
+//1) Global Middleware
+// Security http headers
+app.use(helmet());
 
-// Middleware
+// Development login Logger style morgan middleware
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
-app.use(express.json());
+
+// Limit requests from same API
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000, // 1 hour
+  message: 'Too many requests from this IP, please try again in an hour!',
+});
+
+app.use('/api', limiter);
+
+// Body parser reading data from body into re.body
+app.use(express.json({ limit: '10kb' }));
+// Serving statis files
 app.use(express.static(`${__dirname}/public`));
 
-// Middleware
+// Test Middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   console.log(req.headers);
@@ -23,6 +37,12 @@ app.use((req, res, next) => {
   console.log(req.requestTime);
 });
 
+// Routing
+const usersRouter = require(`${__dirname}/routes/users`);
+const toursRouter = require(`${__dirname}/routes/tours`);
+
+app.use('/api/v1/users', usersRouter);
+app.use('/api/v1/tours', toursRouter);
 // Route Handler
 // app.get('/api/v1/tours', getAllTours);
 // app.post('/api/v1/tours', createTour);
@@ -30,19 +50,8 @@ app.use((req, res, next) => {
 // app.patch('/api/v1/tours/:id', patchTour);
 // app.delete('/api/v1/tours/:id', deleteTour);
 
-app.use('/api/v1/users', usersRouter);
-app.use('/api/v1/tours', toursRouter);
-
 // Router error Handler
 app.all('*', (req, res, next) => {
-  // res.status(404).json({
-  //   status: 'fail',
-  //   message: `Can't find ${req.originalUrl} on this server!`,
-  // });
-  // const err = new Error(`Can't find ${req.originalUrl} on this server!`);
-  // err.status = 'fail';
-  // err.statusCode = 404;
-  // next(err);
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
