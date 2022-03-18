@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const User = require('./users');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -77,6 +78,31 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    startLocation: {
+      // geojson
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        description: String,
+        coordinates: [Number],
+        address: String,
+        day: Number,
+      },
+    ],
+    guides: Array,
   },
   {
     // this will create a virtual field called 'durationWeeks'
@@ -88,7 +114,13 @@ const tourSchema = new mongoose.Schema(
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
-
+// EMBEDDED implementation embedded in guides
+tourSchema.pre('save', async function (next) {
+  const guidesPromises = this.guides.map(async (el) => User.findById(el));
+  this.guides = await Promise.all(guidesPromises);
+  console.log(this.guides, 'this.guides');
+  next();
+});
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()
 tourSchema.pre('save', function (next) {
   // this only points to current doc on NEW document creation

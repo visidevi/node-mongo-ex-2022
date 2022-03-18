@@ -27,7 +27,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['user', 'guide', 'lead-guide', 'admin'],
       default: 'user',
-      select: false,
     },
     password: {
       type: String,
