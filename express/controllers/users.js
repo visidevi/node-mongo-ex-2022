@@ -1,6 +1,7 @@
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const User = require('../models/users');
+const factory = require('./handler.factory');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -25,7 +26,7 @@ exports.getOneUser = (req, res) => {
 exports.createUser = (req, res) => {
   res.status(500).json({ msg: 'This route is not available' });
 };
-
+exports.deleteUser = factory.deleteOne(User);
 exports.deleteMe = catchAsync(async (req, res, next) => {
   const user = await User.findByIdAndUpdate(req.user._id, { active: false });
   if (!user) {

@@ -29,7 +29,7 @@ exports.updateOne = (Model) =>
     });
   });
 
-exports.getOne = (Model, optPopulate = {}) =>
+exports.getOne = (Model, optPopulate) =>
   catchAsync(async (req, res, next) => {
     const document = await Model.findById(req.params.id).populate(optPopulate);
     if (!document) {
