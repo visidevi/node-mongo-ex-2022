@@ -9,6 +9,11 @@ const hpp = require('hpp');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/error');
 
+// Routing
+const usersRouter = require(`${__dirname}/routes/users`);
+const toursRouter = require(`${__dirname}/routes/tours`);
+const reviewsRouter = require(`${__dirname}/routes/reviews.router`);
+
 const app = express();
 
 //1) Global Middleware
@@ -59,12 +64,10 @@ app.use((req, res, next) => {
   console.log(req.requestTime);
 });
 
-// Routing
-const usersRouter = require(`${__dirname}/routes/users`);
-const toursRouter = require(`${__dirname}/routes/tours`);
-
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/tours', toursRouter);
+app.use('/api/v1/reviews', reviewsRouter);
+
 // Route Handler
 // app.get('/api/v1/tours', getAllTours);
 // app.post('/api/v1/tours', createTour);

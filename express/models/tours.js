@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const User = require('./users');
+const Review = require('./review.model');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -102,7 +102,13 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
-    guides: Array,
+    // guides: Array, // embedded
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   {
     // this will create a virtual field called 'durationWeeks'
@@ -114,25 +120,24 @@ const tourSchema = new mongoose.Schema(
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
+// virtual Populate
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+});
+// .virtual('guides', {
+//   ref: 'Guide',
+//   foreignField: 'user',
+//   localField: '_id',
+// });
 // EMBEDDED implementation embedded in guides
-tourSchema.pre('save', async function (next) {
-  const guidesPromises = this.guides.map(async (el) => User.findById(el));
-  this.guides = await Promise.all(guidesPromises);
-  console.log(this.guides, 'this.guides');
-  next();
-});
-// DOCUMENT MIDDLEWARE: runs before .save() and .create()
-tourSchema.pre('save', function (next) {
-  // this only points to current doc on NEW document creation
-  this.slug = slugify(this.name, { lower: true });
-  console.log('Will save document...', this);
-  next();
-});
-
-// // tourSchema.pre('save', function(next) {
-// //   console.log('Will save document...');
-// //   next();
-// // });
+// tourSchema.pre('save', async function (next) {
+//   const guidesPromises = this.guides.map(async (el) => User.findById(el));
+//   this.guides = await Promise.all(guidesPromises);
+//   console.log(this.guides, 'this.guides');
+//   next();
+// });
 
 // tourSchema.post('save', (doc, next) => {
 //   console.log('DOCUMENT SAVED:', doc);
@@ -147,7 +152,13 @@ tourSchema.pre(/^find/, function (next) {
   this.start = Date.now();
   next();
 });
-
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  });
+  next();
+});
 tourSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds!`);
   next();
@@ -159,6 +170,14 @@ tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
 
   console.log(this.pipeline(), 'pipeline---------------------');
+  next();
+});
+
+// DOCUMENT MIDDLEWARE: runs before .save() and .create()
+tourSchema.pre('save', function (next) {
+  // this only points to current doc on NEW document creation
+  this.slug = slugify(this.name, { lower: true });
+  console.log('Will save document...', this);
   next();
 });
 
