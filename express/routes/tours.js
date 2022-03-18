@@ -8,6 +8,9 @@ const router = express.Router();
 
 // router.param('id', tourController.checkID);
 router.use('/:tourId/reviews', reviewRouter);
+// if (process.env.NODE_ENV === 'development') {
+//   router.use(authController.logger);
+// }
 router
   .route('/top-5-cheap')
   .get(tourController.aliasTopTours, tourController.getAllTours);
