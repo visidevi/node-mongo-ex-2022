@@ -1,49 +1,106 @@
-// Review, rating, createdAd, updatedAd, ref to tour, ref to user
-const { Schema, model } = require('mongoose');
+// review / rating / createdAt / ref to tour / ref to user
+const mongoose = require('mongoose');
+const Tour = require('./tours');
 
-const reviewSchema = new Schema(
+const reviewSchema = new mongoose.Schema(
   {
     review: {
       type: String,
-      required: [true, 'Please enter a review'],
+      required: [true, 'Review can not be empty!'],
     },
     rating: {
       type: Number,
       min: 1,
       max: 5,
-      required: [true, 'Please enter a rating'],
     },
-    user: {
-      type: Schema.ObjectId,
-      ref: 'User',
-      //   required: [true, 'Please enter an user'],
+    createdAt: {
+      type: Date,
+      default: Date.now,
     },
     tour: {
-      type: Schema.ObjectId,
+      type: mongoose.Schema.ObjectId,
       ref: 'Tour',
-      required: [true, 'Review must belong to a tour'],
+      required: [true, 'Review must belong to a tour.'],
+    },
+    user: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+      required: [true, 'Review must belong to a user'],
     },
   },
   {
-    timestamps: true,
-    versionKey: false, // this will create a virtual field called
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
+// Permite que el usuario solo pueda crear un review por tour
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 
 reviewSchema.pre(/^find/, function (next) {
-  //   this.populate({
-  //     path: 'user',
-  //     select: 'name photo',
-  //   }).populate({
-  //     path: 'tour',
-  //     select: 'name',
-  //   });
+  // this.populate({
+  //   path: 'tour',
+  //   select: 'name'
+  // }).populate({
+  //   path: 'user',
+  //   select: 'name photo'
+  // });
+
   this.populate({
     path: 'user',
     select: 'name photo',
   });
   next();
 });
-module.exports = model('Review', reviewSchema);
+
+reviewSchema.statics.calcAverageRatings = async function (tourId) {
+  const stats = await this.aggregate([
+    {
+      $match: { tour: tourId },
+    },
+    {
+      $group: {
+        _id: '$tour',
+        nRating: { $sum: 1 },
+        avgRating: { $avg: '$rating' },
+      },
+    },
+  ]);
+  // console.log(stats);
+
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].nRating,
+      ratingsAverage: stats[0].avgRating,
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5,
+    });
+  }
+};
+
+reviewSchema.post('save', function () {
+  // this points to current review
+  this.constructor.calcAverageRatings(this.tour);
+});
+
+// findByIdAndUpdate
+// findByIdAndDelete
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+  console.log(this.getQuery(), 'this.getQuery()');
+  this.r = await this.model.findOne(this.getQuery());
+  this.r = await this.findOne();
+  // // this.r.constructor.calcAverageRatings(this.r.tour);
+  next();
+});
+
+reviewSchema.post(/^findOneAnd/, async function () {
+  console.log('this');
+  if (this.r) await this.r.constructor.calcAverageRatings(this.r.tour);
+  // await this.findOne(); does NOT work here, query has already executed
+});
+
+const Review = mongoose.model('Review', reviewSchema);
+
+module.exports = Review;
