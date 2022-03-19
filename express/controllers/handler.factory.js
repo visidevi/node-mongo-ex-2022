@@ -21,56 +21,61 @@ exports.updateOne = (Model) =>
       new: true,
       runValidators: true,
     });
-    res.status(200).json({
-      status: 'success',
-      data: {
-        doc,
-      },
-    });
-  });
-
-exports.getOne = (Model, optPopulate) =>
-  catchAsync(async (req, res, next) => {
-    const document = await Model.findById(req.params.id).populate(optPopulate);
-    if (!document) {
+    if (!doc) {
       return next(new AppError('No document found with that ID', 404));
     }
     res.status(200).json({
       status: 'success',
       data: {
-        document,
+        data: doc,
+      },
+    });
+  });
+
+exports.getOne = (Model, popOptions) =>
+  catchAsync(async (req, res, next) => {
+    let query = Model.findById(req.params.id);
+    if (popOptions) query = query.populate(popOptions);
+    const doc = await query;
+    if (!doc) {
+      return next(new AppError('No document found with that ID', 404));
+    }
+    res.status(200).json({
+      status: 'success',
+      data: {
+        data: doc,
       },
     });
   });
 
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    const newDocument = await Model.create(req.body);
+    const doc = await Model.create(req.body);
     res.status(201).json({
       status: 'success',
       data: {
-        tour: newDocument,
+        data: doc,
       },
     });
   });
 
 exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
-    console.log(req.query);
-
-    // Execute query
-    const features = new APIFeatures(Model.find(), req.query)
+    // To allow for nested get reviews on tour (hack)
+    let filter = {};
+    if (req.params.tourId) filter = { tour: req.params.tourId };
+    const features = new APIFeatures(Model.find(filter), req.query)
       .filter()
       .sort()
       .limitFields()
       .paginate();
-    const tours = await features.query;
+    const data = await features.query;
     // Send Response
     res.status(200).json({
       status: 'success',
       data: {
-        results: tours.length,
-        tours,
+        results: data.length,
+        data,
       },
     });
   });

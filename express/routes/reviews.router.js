@@ -8,10 +8,11 @@ const authController = require('../controllers/auth');
 
 router
   .route('/')
-  .get(authController.protect, reviewController.getReviews)
+  .get(authController.protect, reviewController.getAllReviews)
   .post(
     authController.protect,
     authController.restrictTo('user'),
+    reviewController.setTourUserId,
     reviewController.createReview
   );
 

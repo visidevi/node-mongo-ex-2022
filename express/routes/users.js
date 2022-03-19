@@ -18,6 +18,10 @@ router.patch('/updateMe', authController.protect, controller.updateMe);
 router.delete('/deleteMe', authController.protect, controller.deleteMe);
 
 router.route('/').get(controller.getAllUsers).post(controller.createUser);
-router.route('/:id').get(controller.getOneUser).delete(controller.deleteUser);
+router
+  .route('/:id')
+  .get(controller.getOneUser)
+  .delete(controller.deleteUser)
+  .patch(controller.updateUser);
 
 module.exports = router;
