@@ -34,6 +34,8 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 // Permite que el usuario solo pueda crear un review por tour
+
+reviewSchema.index({ tour: 1, user: 1 });
 reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 
 reviewSchema.pre(/^find/, function (next) {
