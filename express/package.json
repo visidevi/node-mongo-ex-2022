@@ -18,10 +18,11 @@
     "helmet": "^5.0.2",
     "hpp": "^0.2.3",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.2.5",
+    "mongoose": "^6.2.7",
     "morgan": "^1.10.0",
     "ndb": "^1.1.5",
-    "nodemailer": "^6.7.2",
+    "nodemailer": "^6.7.3",
+    "nodemon": "^2.0.15",
     "slugify": "^1.6.5",
     "validator": "^13.7.0",
     "xss-clean": "^0.1.1"

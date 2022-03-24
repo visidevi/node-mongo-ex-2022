@@ -116,6 +116,13 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+// index
+tourSchema.index({ startLocation: { type: '2dsphere', sparse: true } });
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+tourSchema.index({
+  startLocation: '2dsphere',
+});
 // we cant not use durationWeeks in querys becouse the virtual field is not exist
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
@@ -144,11 +151,6 @@ tourSchema.virtual('reviews', {
 //   next();
 // });
 
-// index
-tourSchema.index({ price: 1, ratingsAverage: -1 });
-tourSchema.index({ slug: 1 });
-tourSchema.index({ startLocation: '2dsphere' });
-
 // QUERY MIDDLEWARE
 // tourSchema.pre('find', function(next) {
 tourSchema.pre(/^find/, function (next) {
@@ -169,14 +171,14 @@ tourSchema.post(/^find/, function (docs, next) {
   next();
 });
 
-// AGGREGATION MIDDLEWARE
-tourSchema.pre('aggregate', function (next) {
-  // unshift() adds to the beginning of the array
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+// // AGGREGATION MIDDLEWARE
+// tourSchema.pre('aggregate', function (next) {
+//   // unshift() adds to the beginning of the array
+//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
 
-  console.log(this.pipeline(), 'pipeline---------------------');
-  next();
-});
+//   console.log(this.pipeline(), 'pipeline---------------------');
+//   next();
+// });
 
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()
 tourSchema.pre('save', function (next) {
