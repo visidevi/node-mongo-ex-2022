@@ -7,9 +7,13 @@
   "scripts": {
     "start": "nodemon server.js",
     "start:prod": "NODE_ENV=production nodemon server.js",
-    "debug": "ndb server.js"
+    "debug": "ndb server.js",
+    "dev": "parcel watch ./public/js/index.js",
+    "build": "parcel build"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "axios": "^0.26.1",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
@@ -18,10 +22,12 @@
     "helmet": "^5.0.2",
     "hpp": "^0.2.3",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.2.5",
+    "mongoose": "^6.2.7",
     "morgan": "^1.10.0",
     "ndb": "^1.1.5",
-    "nodemailer": "^6.7.2",
+    "nodemailer": "^6.7.3",
+    "nodemon": "^2.0.15",
+    "pug": "^3.0.2",
     "slugify": "^1.6.5",
     "validator": "^13.7.0",
     "xss-clean": "^0.1.1"
@@ -35,6 +41,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.29.3",
+    "parcel": "^2.4.0",
     "prettier": "^2.5.1"
   },
   "engines": {
